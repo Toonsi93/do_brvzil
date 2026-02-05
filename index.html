@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>707 Brvzil | Official Profile</title>
+    <link rel="icon" href="https://i.imgur.com/KJEJEiJ.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #ffffff;
+            --accent-color: #888888;
+            --bg-dark: #050505;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glow-color: rgba(255, 255, 255, 0.4);
+            --backdrop-blur: 10px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            position: relative;
+            touch-action: manipulation;
+        }
+
+        /* --- Écran d'entrée --- */
+        #enter-screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        #enter-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: scale(1.1);
+        }
+
+        #enter-screen h1 {
+            font-size: clamp(1.8rem, 7vw, 4rem);
+            font-weight: 900;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            color: white;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            filter: drop-shadow(0 0 20px var(--glow-color));
+            padding: 0 20px;
+        }
+
+        .enter-btn {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 12px 30px;
+            font-size: 0.95rem;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            transition: 0.4s;
+            backdrop-filter: blur(10px);
+            font-weight: 500;
+        }
+
+        .enter-btn:hover {
+            background: white;
+            color: black;
+            box-shadow: 0 0 30px white;
+        }
+
+        /* --- Background Video --- */
+        .video-background {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .video-background video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 1;
+            filter: grayscale(0.5);
+        }
+
+        .video-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.8) 100%);
+            z-index: -1;
+        }
+
+        /* --- Container Principal --- */
+        .container {
+            width: 95%;
+            max-width: 400px;
+            padding: 25px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            backdrop-filter: blur(var(--backdrop-blur));
+            -webkit-backdrop-filter: blur(var(--backdrop-blur));
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+            margin: 20px;
+        }
+
+        .container.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- Profile Section --- */
+        .profile-img-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+            width: 100px;
+            height: 100px;
+        }
+
+        .profile-image {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--glass-border);
+            padding: 4px;
+            transition: 0.5s;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Effet Discord PNG superposé */
+        .profile-decoration {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            width: 120px;
+            height: 120px;
+            background-image: url('https://i.imgur.com/c6oGtkj.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            pointer-events: none;
+            z-index: 2;
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+        }
+
+        /* Animation de rotation pour le cadre */
+        .profile-img-wrapper::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 1px solid var(--glass-border);
+            animation: rotate 10s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .name {
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            background: linear-gradient(to bottom, #fff, #888);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 5px;
+            text-align: center;
+            padding: 0 10px;
+        }
+
+        .discord-tag {
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            background: rgba(255,255,255,0.05);
+            padding: 4px 12px;
+            border-radius: 100px;
+            border: 1px solid var(--glass-border);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* --- Player Audio --- */
+        .player {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid var(--glass-border);
+            margin-bottom: 20px;
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .track-cover {
+            width: 45px;
+            height: 45px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .track-text h3 { 
+            font-size: 0.9rem; 
+            margin-bottom: 2px; 
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+        .track-text p { 
+            font-size: 0.7rem; 
+            color: var(--accent-color); 
+        }
+
+        .progress-area {
+            width: 100%;
+            height: 3px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: white;
+            border-radius: 10px;
+            position: relative;
+            transition: width 0.1s linear;
+        }
+
+        .progress-area:active .progress-bar::after {
+            opacity: 1;
+            transform: translateY(-50%) scale(1.2);
+        }
+
+        .player-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .btn-ctrl {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: 0.3s;
+            padding: 8px;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-ctrl:active { 
+            opacity: 1; 
+            transform: scale(0.95); 
+        }
+        .btn-play { 
+            font-size: 1.6rem; 
+            opacity: 1; 
+        }
+
+        /* --- Social Grid --- */
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            width: 100%;
+        }
+
+        .social-item {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 10px;
+            padding: 12px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            text-decoration: none;
+            color: white;
+            transition: 0.3s;
+            min-height: 50px;
+        }
+
+        .social-item:active {
+            background: rgba(255,255,255,0.08);
+            transform: translateY(-2px);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .social-item i { 
+            font-size: 1.1rem; 
+            width: 20px;
+            text-align: center;
+        }
+        .social-item span { 
+            font-size: 0.8rem; 
+            font-weight: 500; 
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .discord i { color: #5865F2; }
+        .twitch i { color: #9146FF; }
+        .youtube i { color: #FF0000; }
+        .x i { color: #000000; }
+        .tiktok i { color: #000000; }
+        .onlyfans i { color: #00AFF0; }
+
+        /* --- Footer --- */
+        .footer {
+            position: fixed;
+            bottom: 15px;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.5;
+            text-align: center;
+            width: 100%;
+            padding: 0 20px;
+        }
+
+        /* --- Video Controls (Hidden) --- */
+        .video-controls {
+            display: none;
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 380px) {
+            .container {
+                padding: 20px 15px;
+                border-radius: 16px;
+            }
+            
+            .name {
+                font-size: 1.8rem;
+            }
+            
+            .social-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .social-item {
+                padding: 10px;
+                min-height: 45px;
+            }
+            
+            .player {
+                padding: 12px;
+            }
+            
+            .profile-img-wrapper {
+                width: 90px;
+                height: 90px;
+            }
+            
+            .profile-decoration {
+                top: -8px;
+                left: -8px;
+                width: 106px;
+                height: 106px;
+            }
+        }
+
+        @media (max-height: 700px) {
+            .container {
+                padding: 20px;
+                margin-top: 20px;
+            }
+            
+            .footer {
+                position: relative;
+                margin-top: 20px;
+                bottom: auto;
+            }
+        }
+
+        /* Orientation paysage */
+        @media (max-width: 850px) and (orientation: landscape) {
+            body {
+                align-items: flex-start;
+                overflow-y: auto;
+                padding: 20px 0;
+            }
+            
+            .container {
+                margin: 20px auto;
+                max-width: 90%;
+            }
+            
+            .social-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .footer {
+                position: relative;
+                margin-top: 20px;
+                bottom: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="enter-screen">
+        <h1>𝟕𝟎𝟕 𝐁𝐑𝐕𝐙𝐈𝐋</h1>
+        <button class="enter-btn" id="enter-btn">Entrer</button>
+    </div>
+
+    <!-- Background Video -->
+    <div class="video-background">
+        <video id="bg-video" playsinline webkit-playsinline>
+            <source src="video.mp4" type="video/mp4">
+        </video>
+    </div>
+    <div class="video-overlay"></div>
+
+    <!-- Main Container -->
+    <div class="container" id="main-container">
+        <div class="profile-img-wrapper">
+            <img src="https://i.imgur.com/26f1a9A.png" alt="𝐁𝐑𝐕𝐙𝐈𝐋" class="profile-image">
+            <div class="profile-decoration"></div>
+        </div>
+        
+        <h1 class="name">𝐁𝐑𝐕𝐙𝐈𝐋</h1>
+        <div class="discord-tag">
+            <i class="fab fa-discord"></i>
+            <span>braziln1.</span>
+        </div>
+
+        <!-- Audio Player -->
+        <div class="player">
+            <div class="player-info">
+                <img id="track-art" src="https://images.genius.com/cf44ff7e1fbed24aa99eabe9ac1dc799.500x500x1.jpg" class="track-cover">
+                <div class="track-text">
+                    <h3 id="track-title">Loading...</h3>
+                    <p id="track-artist">Artist</p>
+                </div>
+            </div>
+            
+            <div class="progress-area" id="progress-area">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            
+            <div class="player-controls">
+                <button class="btn-ctrl" id="prev-btn" aria-label="Previous track">
+                    <i class="fas fa-step-backward"></i>
+                </button>
+                <button class="btn-ctrl btn-play" id="play-btn" aria-label="Play/Pause">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button class="btn-ctrl" id="next-btn" aria-label="Next track">
+                    <i class="fas fa-step-forward"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Social Grid -->
+        <div class="social-grid">
+            <a href="https://discord.gg/rsleak" target="_blank" class="social-item discord">
+                <i class="fab fa-discord"></i>
+                <span>Discord</span>
+            </a>
+            <a href="https://www.twitch.tv/brvzil" target="_blank" class="social-item twitch">
+                <i class="fab fa-twitch"></i>
+                <span>Twitch</span>
+            </a>
+            <a href="https://www.youtube.com/@BRVZILL" target="_blank" class="social-item youtube">
+                <i class="fab fa-youtube"></i>
+                <span>YouTube</span>
+            </a>
+            <a href="https://x.com" target="_blank" class="social-item x">
+                <i class="fab fa-x-twitter"></i>
+                <span>X.com</span>
+            </a>
+            <a href="https://www.tiktok.com/@brvzil_tiktok" target="_blank" class="social-item tiktok">
+                <i class="fab fa-tiktok"></i>
+                <span>TikTok</span>
+            </a>
+            <a href="https://i.pinimg.com/736x/44/8f/65/448f653eedaaffd81f1fe8c6fc4d8536.jpg" target="_blank" class="social-item onlyfans">
+                <i class="fab fa-onlyfans"></i>
+                <span>OnlyFans</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="footer">
+        © 2026 Developed by 707
+    </div>
+
+    <script>
+        const enterBtn = document.getElementById('enter-btn');
+        const enterScreen = document.getElementById('enter-screen');
+        const container = document.getElementById('main-container');
+        const playBtn = document.getElementById('play-btn');
+        const progressArea = document.getElementById('progress-area');
+        const progressBar = document.getElementById('progress-bar');
+        const bgVideo = document.getElementById('bg-video');
+        
+        // Playlist
+        const playlist = [
+            {
+                title: "Neton Vega - Te Quería Ver (Instrumental)",
+                artist: "707 Brvzil",
+                cover: "https://i.ytimg.com/vi/dTTgdi3XUtY/maxresdefault.jpg",
+                src: "music.mp3"
+            },
+            {
+                title: "FloyyMenor - CHICA ATRACTIVA",
+                artist: "707 Brvzil",
+                cover: "https://images.genius.com/7a15bf89383c9348c0527e495e0d889e.1000x1000x1.png",
+                src: "music1.mp3"
+            }
+        ];
+
+        let trackIndex = 0;
+        let audio = new Audio();
+        audio.volume = 0.5;
+        
+        // Gestion des vidéos
+        const videos = ["video.mp4", "video1.mp4"];
+        let currentVideoIndex = 0;
+
+        function loadTrack(index) {
+            const track = playlist[index];
+            document.getElementById('track-title').innerText = track.title;
+            document.getElementById('track-artist').innerText = track.artist;
+            document.getElementById('track-art').src = track.cover;
+            audio.src = track.src;
+        }
+
+        // Fonction pour charger la vidéo suivante
+        function loadNextVideo() {
+            currentVideoIndex = (currentVideoIndex + 1) % videos.length;
+            bgVideo.src = videos[currentVideoIndex];
+            
+            // Forcer le rechargement et lecture
+            bgVideo.load();
+            
+            // S'assurer que la vidéo est jouée sans coupure
+            bgVideo.play().catch(e => {
+                console.log("Autoplay prevented:", e);
+                // Si autoplay est bloqué, on attend l'interaction utilisateur
+                enterBtn.addEventListener('click', () => {
+                    bgVideo.play();
+                }, { once: true });
+            });
+        }
+
+        // Écouter la fin de la vidéo
+        bgVideo.addEventListener('ended', loadNextVideo);
+
+        // Initial Load
+        loadTrack(trackIndex);
+        
+        // Démarrer la première vidéo en boucle
+        bgVideo.loop = false; // On désactive la boucle pour gérer manuellement
+        bgVideo.muted = true; // Important pour l'autoplay sur mobile
+        bgVideo.playsInline = true;
+        
+        // Essayer de jouer la vidéo dès le chargement
+        bgVideo.play().catch(e => {
+            console.log("Initial video autoplay prevented:", e);
+        });
+
+        // Gestion de l'écran d'entrée avec transition de flou
+        enterBtn.addEventListener('click', () => {
+            enterScreen.classList.add('hidden');
+            
+            // Afficher le container
+            container.classList.add('visible');
+            
+            // Démarrer la musique
+            audio.play().catch(() => console.log("Audio waiting for user interaction"));
+            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            
+            // Animation de transition du flou de 10px à 0px
+            let blurValue = 10;
+            const blurInterval = setInterval(() => {
+                blurValue = Math.max(0, blurValue - 0.2);
+                
+                // Mettre à jour la propriété CSS
+                document.documentElement.style.setProperty('--backdrop-blur', `${blurValue}px`);
+                container.style.backdropFilter = `blur(${blurValue}px)`;
+                container.style.webkitBackdropFilter = `blur(${blurValue}px)`;
+                
+                // Arrêter l'animation quand on atteint 0
+                if (blurValue <= 0) {
+                    clearInterval(blurInterval);
+                    // Forcer la valeur finale à 0
+                    document.documentElement.style.setProperty('--backdrop-blur', '0px');
+                    container.style.backdropFilter = 'blur(0px)';
+                    container.style.webkitBackdropFilter = 'blur(0px)';
+                }
+            }, 16); // ~60fps
+            
+            // Activer le son de la vidéo si possible
+            bgVideo.muted = false;
+        });
+
+        // Contrôle de lecture
+        playBtn.addEventListener('click', () => {
+            if(audio.paused) {
+                audio.play();
+                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            } else {
+                audio.pause();
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+            }
+        });
+
+        audio.addEventListener('timeupdate', (e) => {
+            const { duration, currentTime } = e.srcElement;
+            if (duration) {
+                const progressPercent = (currentTime / duration) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+            }
+        });
+
+        progressArea.addEventListener('click', (e) => {
+            const width = progressArea.clientWidth;
+            const clickX = e.offsetX;
+            const duration = audio.duration;
+            if (duration) {
+                audio.currentTime = (clickX / width) * duration;
+            }
+        });
+
+        // Gestion tactile pour la barre de progression
+        progressArea.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const width = progressArea.clientWidth;
+            const clickX = touch.clientX - progressArea.getBoundingClientRect().left;
+            const duration = audio.duration;
+            if (duration) {
+                audio.currentTime = (clickX / width) * duration;
+            }
+        });
+
+        document.getElementById('next-btn').addEventListener('click', () => {
+            trackIndex = (trackIndex + 1) % playlist.length;
+            loadTrack(trackIndex);
+            audio.play();
+            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        });
+
+        document.getElementById('prev-btn').addEventListener('click', () => {
+            trackIndex = (trackIndex - 1 + playlist.length) % playlist.length;
+            loadTrack(trackIndex);
+            audio.play();
+            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        });
+
+        audio.addEventListener('ended', () => {
+            trackIndex = (trackIndex + 1) % playlist.length;
+            loadTrack(trackIndex);
+            audio.play();
+        });
+
+        // Gestion de la visibilité de la page
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // Si la page est cachée, pause la musique
+                audio.pause();
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+            }
+        });
+
+        // Prévenir les actions par défaut du toucher
+        document.addEventListener('touchmove', (e) => {
+            if (e.scale !== 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Gestion du redimensionnement
+        window.addEventListener('resize', () => {
+            // Ajuster la taille de la vidéo pour couvrir l'écran
+            bgVideo.style.width = '100%';
+            bgVideo.style.height = '100%';
+        });
+    </script>
+</body>
+</html>
